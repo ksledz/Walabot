@@ -16,51 +16,52 @@ from operator import itemgetter
 #
 # gh=[]
 # for x in range(len(ulabel)-2):
-#     if ulabel[x]-ulabel[x+1]!=0 and ulabel[x+1]==ulabel[x+2]:
-#         gh.append(x)
+#    if ulabel[x]-ulabel[x+1]!=0 and ulabel[x+1]==ulabel[x+2]:
+#        gh.append(x)
 # print(gh)
-file1 = 'Datasit.out'
-filetime1 = 'DataTimesit.out'
+file1 = 'Data/Datastandsit5s.out'
+filetime1 = 'Data/DataTimestandsit5s.out'
 
-file = 'Datazhang.out'
-filetime = 'DataTimezhang.out'
+file = 'Data/Datarun.out'
+filetime = 'Data/DataTimerun.out'
 t0 = 9.765625000e-12
-c =  299792458
+c = 299792458
 signaldata = fc.readfile(file)
 timedata = fc.readfile(filetime)
 
 signaldata1 = fc.readfile(file1)
 timedata1 = fc.readfile(filetime1)
 #
-# yi=fc.alldifferentpoint(signaldata)[1]
+yi = fc.alldifferentpoint(signaldata)[1]
 #
-# print(yi)
-# testd = fc.remove_nosie(yi)
-# print(testd)
-# disy = []
-# for x in range(len(testd )):
-#     disy.append((timedata[x][testd[x]]-t0)*c)
+print(yi, " before")
+# testd = fc.remove_nosie(yi) TODO remove noise
+testd = yi
+print(testd, " after")
+disy = []
+for x in range(len(testd)):
+    disy.append((timedata[int(x)][int(testd[int(x)])] - t0) * c)
 
-# fc.drawpicture(testd)
+fc.drawpicture(testd, "data after 'noise removing'")
 maxdifferenceloc = []
-maxdifference=[]
-difference=[]
+maxdifference = []
+difference = []
 op = 0
-for t in range(len(signaldata)-1):
+for t in range(len(signaldata) - 1):
     for x in range(len(signaldata[1])):
-        difference.append(float("%.2f" %(signaldata[t+1][x]-signaldata[t][x])))
+        difference.append(float("%.2f" % (signaldata[t + 1][x] - signaldata[t][x])))
     if np.max(difference) == 0:
         maxdifferenceloc.append(0)
-        op +=1
+        op += 1
     else:
         maxdifferencev = difference.index(np.max(difference))
         maxdifferenceloc.append(maxdifferencev)
     maxdifference.append(np.max(difference))
-    difference=[]
+    difference = []
 
-print(maxdifferenceloc)
-print(maxdifference)
-print('number of zero: ',op,'/',len(maxdifference))
+print(maxdifferenceloc, " maxdifference location")
+print(maxdifference, " the difference")
+print('number of zero: ', op, '/', len(maxdifference))
 print('max divergent', np.max(maxdifference))
 print('')
 print('*************')
@@ -69,16 +70,17 @@ print('')
 testingstanding1 = fc.alldifferentpoint(signaldata1)
 print(testingstanding1[0])
 print(testingstanding1[1])
-print('number of zero: ',testingstanding1[2],'/',len(testingstanding1[0]))
+print('number of zero: ', testingstanding1[2], '/', len(testingstanding1[0]))
 print('max divergent', np.max(testingstanding1[1]))
-# center = fc.getcluster_center(testd)
-# print(center[0])
-# print(fc.Getvelocity(signaldata,timedata,60))
+center = fc.getcluster_center(4, testd)
+print(center[0], " clustered center")
+xoutput = [signaldata, timedata]
+print(fc.getVelocity(xoutput, 60), " velocity")
 
-yi = fc.convertmeters(maxdifferenceloc,timedata)
-# fc.drawpicture(yi)
-yisit = fc.convertmeters(testingstanding1[0],timedata1)
-# fc.drawpicture(yisit)
+yi = fc.convertmeters(maxdifferenceloc, timedata)
+fc.drawpicture(yi, "converted to metres")
+yisit = fc.convertmeters(testingstanding1[0], timedata1)
+fc.drawpicture(yisit, "standing converted to metres")
 featuresit = fc.gettheconsecutivelist(maxdifferenceloc)
 featurecomplex = fc.gettheconsecutivelist(testingstanding1[0])
 
@@ -88,33 +90,32 @@ increase = 0
 decrease = 0
 resultfeature = []
 for y in range(len(filter1)):
-    for x in range(len(filter1[y])-1):
-        if maxdifferenceloc[filter1[y][x+1]]>=maxdifferenceloc[filter1[y][x]]:
-            increase+=1
+    for x in range(len(filter1[y]) - 1):
+        if maxdifferenceloc[filter1[y][x + 1]] >= maxdifferenceloc[filter1[y][x]]:
+            increase += 1
         else:
-            decrease+=1
+            decrease += 1
     rangefilter = maxdifferenceloc[filter1[y][-1]] - maxdifferenceloc[filter1[y][1]]
-    resultfeature.append([increase,decrease,rangefilter])
+    resultfeature.append([increase, decrease, rangefilter])
     increase = 0
     decrease = 0
 print(resultfeature)
 
 filter2 = fc.featurefilter(featurecomplex)
 print(filter2)
-result2 = fc.featureresult(filter2,testingstanding1[0])
+result2 = fc.featureresult(filter2, testingstanding1[0])
 print(result2)
 
-
 # for k,g in groupby(enumerate(indexlist), lambda ix: ix[0]-ix[1]):
-#     print(itemgetter(1))
-#     print(g)
-# y1 = np.linspace(0, len(maxdifferenceloc), len(maxdifferenceloc))
-# fig = plt.figure()
-# ax1 = plt.subplot(211)
-# # ax1.set_ylim([-2, 2])
-# ax1.plot(y1, maxdifferenceloc)
-# y2 = np.linspace(0, len(testingstanding1[0]), len(testingstanding1[0]))
-# ax2 = plt.subplot(212)
-# # ax1.set_ylim([-2, 2])
-# ax2.plot(y2, testingstanding1[0])
-# plt.show()
+# print(itemgetter(1))
+# print(g)
+y1 = np.linspace(0, len(maxdifferenceloc), len(maxdifferenceloc))
+fig = plt.figure()
+ax1 = plt.subplot(211)
+ax1.set_ylim([-2, 2])
+ax1.plot(y1, maxdifferenceloc)
+y2 = np.linspace(0, len(testingstanding1[0]), len(testingstanding1[0]))
+ax2 = plt.subplot(212)
+ax1.set_ylim([-2, 2])
+ax2.plot(y2, testingstanding1[0])
+plt.show()

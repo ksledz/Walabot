@@ -5,30 +5,37 @@ from sklearn.cluster import KMeans
 from scipy import linalg
 from math import ceil
 from math import factorial
+
+
 # file = 'DataTimewalk1.out'
 # file1 = 'Datawalk1.out'
-#read files
+# read files
 def readfile(file):
-    sd=[]
+    sd = []
     with open(file, 'r') as f:
         for x in f:
             sd.append([float(n) for n in x.strip().split(',')])
     # sd = np.reshape(sd, -1)
     return sd
-#calculate the
-def GetDistance(listD,listT,index):
+
+
+# calculate the
+def GetDistance(listD, listT, index):
     t0 = 9.765625000e-12
     c = 299792458
     ux = listD[index].index(np.max(listD[index]))
-    distance = (listT[index][ux] - t0)*c
+    distance = (listT[index][ux] - t0) * c
     return distance
-#draw a picture
-def drawpicture(list):
+
+
+# draw a picture
+def drawpicture(list, title="some graph"):
     y = np.linspace(0, len(list), len(list))
     fig = plt.figure()
     ax1 = plt.subplot()
     # ax1.set_ylim([-2, 2])
     ax1.plot(y, list)
+    plt.title(title)
     plt.show()
 
 
@@ -38,45 +45,57 @@ def getClassificationpoint(ulabel):
         if ulabel[x] - ulabel[x + 1] != 0 and ulabel[x + 1] == ulabel[x + 2]:
             gh.append(x)
     return gh
-def interval_time(totaltime,list,fasttime):
+
+
+def interval_time(totaltime, list, fasttime):
     yui = (totaltime - fasttime * len(list)) / (len(list) - 1)
     return yui
+
+
 def alldifferentpoint(list):
     difference = []
     maxdifferenceloc = []
     maxdifference = []
     op = 0
-    for y in range(len(list)-1):
+    for y in range(len(list) - 1):
         for x in range(len(list[1])):
-            difference.append(float("%.2f" % (list[y][x] - list[y+1][x])))
+            difference.append(float("%.2f" % (list[y][x] - list[y + 1][x])))
         if np.max(difference) == 0:
             maxdifferenceloc.append(0)
-            op+=1
+            op += 1
         else:
             maxdifferencev = difference.index(np.max(difference))
             maxdifferenceloc.append(maxdifferencev)
         maxdifference.append(np.max(difference))
-        difference=[]
-    return maxdifferenceloc,maxdifference,op
+        difference = []
+    return maxdifferenceloc, maxdifference, op
+
+
 def getintervaldifferent(list):
     u = []
-    for x in range(len(list)-1):
-        u.append((list[x+1]-list[x]))
+    for x in range(len(list) - 1):
+        u.append((list[x + 1] - list[x]))
     return u
-def convertmeters(yi,timedata):
+
+
+def convertmeters(yi, timedata):
     disy = []
     t0 = 9.765625000e-12
     c = 299792458
     for x in range(len(yi)):
         disy.append((timedata[x][yi[x]] - t0) * c)
     return disy
-def getcluster_center(cluster,disy):
+
+
+def getcluster_center(cluster, disy):
     disy = np.array(disy)
-    kmeans = KMeans(n_clusters=cluster,random_state=None)
-    u= kmeans.fit(disy.reshape(-1,1))
+    kmeans = KMeans(n_clusters=cluster, random_state=None)
+    u = kmeans.fit(disy.reshape(-1, 1))
     cluster_center = u.cluster_centers_
     ulabel = u.labels_
-    return cluster_center,ulabel
+    return cluster_center, ulabel
+
+
 def filter(df):
     cv = []
     for x in range(len(df) - 1):
@@ -84,12 +103,15 @@ def filter(df):
             cv.append(df[x])
     return cv
 
+
 def filterbasesavutzky(disy):
     ta = np.array(disy)
-    disy = savitzky_golay(ta,35,3)
-    disy =disy.reshape(-1)
+    disy = savitzky_golay(ta, 35, 3)
+    disy = disy.reshape(-1)
     disy = np.array(disy).tolist()
     return disy
+
+
 def addsaveamplituate(list):
     with open('Data/Data.csv', 'a') as f:
         for x in range(len(list)):
@@ -97,6 +119,8 @@ def addsaveamplituate(list):
             output_string += "\n"
             f.writelines(output_string)
     f.close()
+
+
 def addsaveVelocity(list):
     with open('Data/Velocity.csv', 'a') as f:
         for x in range(len(list)):
@@ -104,6 +128,8 @@ def addsaveVelocity(list):
             output_string += "\n"
             f.writelines(output_string)
     f.close()
+
+
 def addsaveA(list):
     with open('Data/Amplitude.csv', 'w') as f:
         for x in range(len(list)):
@@ -111,6 +137,8 @@ def addsaveA(list):
             output_string += "\n"
             f.writelines(output_string)
     f.close()
+
+
 def addsavelabel(list):
     with open('Data/label.csv', 'w') as f:
         for x in range(len(list)):
@@ -118,13 +146,15 @@ def addsavelabel(list):
             output_string += "\n"
             f.writelines(output_string)
     f.close()
+
+
 def getVelocityforCART(output1):
-    output = np.array(output1)/550
+    output = np.array(output1) / 550
     t_end = 7.999023438e-08  # time[1][-1]
-    interval_times = interval_time(60,output,t_end)
+    interval_times = interval_time(60, output, t_end)
     velocity = []
-    for x in range(len(output)-1):
-        velocity.append(np.abs(output[x+1]-output[x])/interval_times)
+    for x in range(len(output) - 1):
+        velocity.append(np.abs(output[x + 1] - output[x]) / interval_times)
     print(velocity)
     # disy = []
     # t0 = 9.765625000e-12
@@ -139,19 +169,22 @@ def getVelocityforCART(output1):
     # velocity = (np.max(output[0]) - np.min(output[0])) / ((avaeragedeviation * intervaltime)/2)
     return np.mean(velocity)
 
-def group_consecutives(vals,step = 1):
+
+def group_consecutives(vals, step=1):
     run = []
     result = [run]
     expect = None
     for v in vals:
-        if(v==expect) or (expect is None):
+        if (v == expect) or (expect is None):
             run.append(v)
         else:
             run = [v]
             result.append(run)
-        expect = v+step
+        expect = v + step
     return result
-#Get the max time_span
+
+
+# Get the max time_span
 def max_time_span(yi0):
     vaildable = gettheconsecutivelist(yi0)
     u = []
@@ -159,19 +192,24 @@ def max_time_span(yi0):
         u.append(len(vaildable[x]))
     return (np.max(u))
 
+
 def gettheconsecutivelist(list):
     indexlist = []
     for x in range(len(list)):
-        if list[x] >0.01:
+        if list[x] > 0.01:
             indexlist.append(x)
     return group_consecutives(indexlist)
+
+
 def featurefilter(list):
     featurefilterlist = []
     for x in range(len(list)):
         if len(list[x]) > 10:
             featurefilterlist.append(list[x])
     return featurefilterlist
-def featureresult(filter1,list):
+
+
+def featureresult(filter1, list):
     increase = 0
     decrease = 0
     resultfeature = []
@@ -181,15 +219,15 @@ def featureresult(filter1,list):
     for y in range(len(filter1)):
         for x in range(len(filter1[y]) - 1):
             roui.append(list[filter1[y][x]])
-            t =list[filter1[y][x + 1]] - list[filter1[y][x]]
-            if t>0:
+            t = list[filter1[y][x + 1]] - list[filter1[y][x]]
+            if t > 0:
                 increase += 1
                 variableplus.append(t)
             else:
                 decrease += 1
                 variabledown.append(t)
         rangefirst = list[filter1[y][0]]
-        rangelast =  list[filter1[y][-1]]
+        rangelast = list[filter1[y][-1]]
         colorfirst = filter1[y][0]
         colorlast = filter1[y][-1]
         mind = np.min(roui)
@@ -203,40 +241,45 @@ def featureresult(filter1,list):
         else:
             meandown = 0
         # meandown = np.mean(variabledown)
-        resultfeature.append([meanplus, meandown,rangefirst,rangelast,mind,maxd,colorfirst,colorlast])
+        resultfeature.append(
+            [meanplus, meandown, rangefirst, rangelast, mind, maxd, colorfirst, colorlast])
         roui = []
         variableplus = []
         variabledown = []
         increase = 0
         decrease = 0
     return resultfeature
-def verifystaticstatus(result2,list):
+
+
+def verifystaticstatus(result2, list):
     increase = 0
     decrease = 0
     increasecolor = []
     decreasecolor = []
     for x in range(len(result2)):
         if result2[x][2] - result2[x][3] > 0.1:
-            if result2[x][3] - result2[x][4] > 100 :
-                middlenumber = int(np.abs(result2[x][7]-result2[x][6])/2)+np.min([result2[x][6],result2[x][7]])
+            if result2[x][3] - result2[x][4] > 100:
+                middlenumber = int(np.abs(result2[x][7] - result2[x][6]) / 2) + np.min(
+                    [result2[x][6], result2[x][7]])
                 increase += 1
                 decrease += 1
-                if list[middlenumber]<list[result2[x][6]]:
-                    decreasecolor.append([result2[x][6],middlenumber])
-                    increasecolor.append([middlenumber,result2[x][7]])
+                if list[middlenumber] < list[result2[x][6]]:
+                    decreasecolor.append([result2[x][6], middlenumber])
+                    increasecolor.append([middlenumber, result2[x][7]])
                 else:
                     increasecolor.append([result2[x][6], middlenumber])
                     decreasecolor.append([middlenumber, result2[x][7]])
 
             else:
                 decrease += 1
-                decreasecolor.append([result2[x][6],result2[x][7]])
+                decreasecolor.append([result2[x][6], result2[x][7]])
         elif result2[x][3] - result2[x][2] > 0.1:
-            if result2[x][2] - result2[x][4] > 100 :
-                middlenumber = int(np.abs(result2[x][7] - result2[x][6]) / 2) + np.min([result2[x][6], result2[x][7]])
+            if result2[x][2] - result2[x][4] > 100:
+                middlenumber = int(np.abs(result2[x][7] - result2[x][6]) / 2) + np.min(
+                    [result2[x][6], result2[x][7]])
                 increase += 1
                 decrease += 1
-                if list[middlenumber]>list[result2[x][6]]:
+                if list[middlenumber] > list[result2[x][6]]:
                     increasecolor.append([result2[x][6], middlenumber])
                     decreasecolor.append([middlenumber, result2[x][7]])
                 else:
@@ -246,28 +289,32 @@ def verifystaticstatus(result2,list):
 
             else:
                 increase += 1
-                increasecolor.append([result2[x][6],result2[x][7]])
+                increasecolor.append([result2[x][6], result2[x][7]])
         else:
             increase += 0
             decrease += 0
-    return increase,decrease,increasecolor,decreasecolor
+    return increase, decrease, increasecolor, decreasecolor
+
+
 def colorpoint(status):
     increaselist = []
     a = []
     b = []
     decreaselist = []
     for x in range(len(status[2])):
-        for y in range(status[2][x][0],status[2][x][1]+1):
+        for y in range(status[2][x][0], status[2][x][1] + 1):
             a.append(y)
         increaselist.append(a)
-        a=[]
+        a = []
     for x in range(len(status[3])):
-        for y in range(status[3][x][0],status[3][x][1]+1):
+        for y in range(status[3][x][0], status[3][x][1] + 1):
             b.append(y)
         decreaselist.append(b)
-        b=[]
-    return increaselist,decreaselist
-def peakdetectioncrestfrist(cv,disy):
+        b = []
+    return increaselist, decreaselist
+
+
+def peakdetectioncrestfrist(cv, disy):
     i = []
     u = []
     # if len(cv) % 2 == 0:
@@ -276,11 +323,11 @@ def peakdetectioncrestfrist(cv,disy):
         if x % 2 == 1:
             maxd = np.max(disy[cv[x - 1]:cv[x]])
             # print(cv[x - 1], cv[x])
-            i.append([maxd, cv[x - 1]+disy[cv[x - 1]:cv[x]].index(maxd)])
+            i.append([maxd, cv[x - 1] + disy[cv[x - 1]:cv[x]].index(maxd)])
         else:
             mind = np.min(disy[cv[x - 1]:cv[x]])
             # print(cv[x - 1], cv[x])
-            u.append([mind, cv[x - 1]+disy[cv[x - 1]:cv[x]].index(mind)])
+            u.append([mind, cv[x - 1] + disy[cv[x - 1]:cv[x]].index(mind)])
     return i, u
 
 
@@ -293,20 +340,21 @@ def peakdetectiontroughfirst(cv, disy):
         if x % 2 == 0:
             maxd = np.max(disy[cv[x - 1]:cv[x]])
             # print(cv[x - 1], cv[x])
-            i.append([maxd, cv[x - 1]+disy[cv[x - 1]:cv[x]].index(maxd)])
+            i.append([maxd, cv[x - 1] + disy[cv[x - 1]:cv[x]].index(maxd)])
         else:
             mind = np.min(disy[cv[x - 1]:cv[x]])
             # print(cv[x - 1], cv[x])
-            u.append([mind, cv[x - 1]+disy[cv[x - 1]:cv[x]].index(mind)])
+            u.append([mind, cv[x - 1] + disy[cv[x - 1]:cv[x]].index(mind)])
     return i, u
 
-def getxoutput(output,disy):
+
+def getxoutput(output, disy):
     df = getClassificationpoint(output[1])
     cv = []
     for x in range(len(df) - 1):
         if df[x + 1] - df[x] >= 10:
             cv.append(df[x])
-    cv.append(len(output[1])-1)
+    cv.append(len(output[1]) - 1)
     if cv[0] < 5:
         cv.remove(cv[0])
         print('Removed first one from fc')
@@ -320,7 +368,9 @@ def getxoutput(output,disy):
         xoutput[0].remove(xoutput[0][0])
         print('Removed a mistake from fc')
     return xoutput
-def getVelocity(xoutput,intervaltime):
+
+
+def getVelocity(xoutput, intervaltime):
     mark1 = False
     mark0 = False
     markq = False
@@ -351,14 +401,15 @@ def getVelocity(xoutput,intervaltime):
             distenceF = np.abs(xoutput[0][x][0] - xoutput[1][x + 1][0])
             timeF = (np.abs(xoutput[1][x + 1][1] - xoutput[0][x][1])) * intervaltime
             velcocitylisto.append(distenceF / (timeF / 2))
-    # velcocitylisto = []
-    # for x in range(len(xoutput[0])):
-    #     distenceF = np.abs(xoutput[0][x][0] - xoutput[1][x][0])
-    #     timeF = (np.abs(xoutput[1][x][1] - xoutput[0][x][1])) * intervaltime
-    #     velcocitylisto.append(distenceF / (timeF / 2))
+    velcocitylisto = []
+    for x in range(len(xoutput[0])):
+        distenceF = np.abs(xoutput[0][x][0] - xoutput[1][x][0])
+        timeF = (np.abs(xoutput[1][x][1] - xoutput[0][x][1])) * intervaltime
+        velcocitylisto.append(distenceF / (timeF / 2))
     return velcocitylisto
 
-def peakdraw(xoutput,disy):
+
+def peakdraw(xoutput, disy):
     pointx = []
     pointy = []
     pointx1 = []
@@ -373,10 +424,12 @@ def peakdraw(xoutput,disy):
     fig = plt.figure()
     ax1 = plt.subplot()
     # ax1.set_ylim([-2, 2])
-    ax1.plot(y, disy,)
-    ax1.scatter(pointx,pointy,color = 'red')
-    ax1.scatter(pointx1,pointy1,color = 'green')
+    ax1.plot(y, disy, )
+    ax1.scatter(pointx, pointy, color='red')
+    ax1.scatter(pointx1, pointy1, color='green')
+    plt.title("peak draw")
     plt.show()
+
 
 def lowess(x, y, f=2. / 3., iter=3):
     """lowess(x, y, f=2./3., iter=3) -> yest
@@ -412,13 +465,13 @@ def lowess(x, y, f=2. / 3., iter=3):
 
     return yest
 
-def savitzky_golay(y, window_size, order, deriv=0, rate=1):
 
+def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     try:
         window_size = np.abs(np.int(window_size))
         order = np.abs(np.int(order))
     except ValueError:
-        raise  ValueError("window_size and order have to be of type int")
+        raise ValueError("window_size and order have to be of type int")
     # except ValueError, msg:
     #     raise ValueError("window_size and order have to be of type int")
     if window_size % 2 != 1 or window_size < 1:
