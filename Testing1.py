@@ -19,11 +19,11 @@ from operator import itemgetter
 #    if ulabel[x]-ulabel[x+1]!=0 and ulabel[x+1]==ulabel[x+2]:
 #        gh.append(x)
 # print(gh)
-file1 = 'Data/Datastandsit5s.out'
-filetime1 = 'Data/DataTimestandsit5s.out'
+file = 'Data/Datastandsit5s.out'
+filetime = 'Data/DataTimestandsit5s.out'
 
-file = 'Data/Datarun.out'
-filetime = 'Data/DataTimerun.out'
+file1 = 'Data/Datarun.out'
+filetime1 = 'Data/DataTimerun.out'
 t0 = 9.765625000e-12
 c = 299792458
 signaldata = fc.readfile(file)
@@ -35,12 +35,15 @@ timedata1 = fc.readfile(filetime1)
 yi = fc.alldifferentpoint(signaldata)[1]
 #
 print(yi, " before")
+fc.drawpicture(yi, "data b4 'noise removing'")
 # testd = fc.remove_nosie(yi) TODO remove noise
 testd = yi
 print(testd, " after")
+#is DISY relative spatial loc change?
 disy = []
+#hmmmm looks fishey
 for x in range(len(testd)):
-    disy.append((timedata[int(x)][int(testd[int(x)])] - t0) * c)
+    disy.append((timedata[x][int(testd[x])] - t0) * c)
 
 fc.drawpicture(testd, "data after 'noise removing'")
 maxdifferenceloc = []
@@ -72,7 +75,7 @@ print(testingstanding1[0])
 print(testingstanding1[1])
 print('number of zero: ', testingstanding1[2], '/', len(testingstanding1[0]))
 print('max divergent', np.max(testingstanding1[1]))
-center = fc.getcluster_center(4, testd)
+center = fc.getcluster_center(2, testd)
 print(center[0], " clustered center")
 xoutput = [signaldata, timedata]
 print(fc.getVelocity(xoutput, 60), " velocity")
@@ -85,7 +88,7 @@ featuresit = fc.gettheconsecutivelist(maxdifferenceloc)
 featurecomplex = fc.gettheconsecutivelist(testingstanding1[0])
 
 filter1 = fc.featurefilter(featuresit)
-print(filter1)
+print(filter1, " filterki")
 increase = 0
 decrease = 0
 resultfeature = []

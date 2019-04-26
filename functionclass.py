@@ -489,6 +489,29 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     lastvals = y[-1] + np.abs(y[-half_window - 1:-1][::-1] - y[-1])
     y = np.concatenate((firstvals, y, lastvals))
     return np.convolve(m[::-1], y, mode='valid')
+
+
+#Activity Separation from paper
+def activity_periods(yi, dtimes):
+    activities = []
+    times = []
+    n = len(yi)
+    activity = []
+    time = []
+    for i in range(n - 1):
+        if yi[i] != 0:
+            activity.append(yi[i])
+            time.append(dtimes[i])
+            if yi[i + 1] == 0:
+                activities.append(activity)
+                activity = []
+                times.append(time)
+                time = []
+    if len(activity) > 0:
+        activities.append(activity)
+    return activities
+
+
 # yi=alldifferentpoint(tx)[0]
 # print(yi)
 # drawpicture(yi)

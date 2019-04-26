@@ -49,6 +49,9 @@ def PrintResults(targets):
 
 
 def SensorApp():
+    timeSpan = 30
+    if len(argv) > 2:
+        timeSpan = argv[2]
     # wlbt.SetArenaR - input parameters
     minInCm, maxInCm, resInCm = 30, 500, 3
     # wlbt.SetArenaTheta - input parameters
@@ -89,7 +92,7 @@ def SensorApp():
             wlbt.Trigger()
     start_time = time.perf_counter()
     mtimes = []
-    while int(time.time() - t0) <= 30:
+    while timeSpan >= int(time.time() - t0):
         appStatus, calibrationProcess = wlbt.GetStatus()
 
         # 5) Trigger: Scan(sense) according to profile and record signals
